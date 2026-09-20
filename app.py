@@ -1197,58 +1197,165 @@ elif page == "🚨 Stress Test":
     st.caption(
         "Stress-test results are based on synthetic simulation data and are intended for operational experimentation, not clinical decision-making."
     )
-    
+
 # ---------- How it Works ----------
 elif page == "ℹ️ How It Works":
-    st.subheader("How MedFlow works")
+
+    st.markdown(
+        '<div class="section-title">ℹ️ HOW MEDFLOW WORKS</div>',
+        unsafe_allow_html=True
+    )
+
+    st.caption(
+        "A transparent simulation pipeline for patient prioritization, "
+        "resource allocation, and hospital stress testing."
+    )
+
+    st.markdown("### 1. Patient arrival")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">URGENCY</div>
+            <div class="small">
+                Critical, High, Medium, or Low
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">DEPARTMENT</div>
+            <div class="small">
+                Emergency, Cardiology, Neurology, Pediatrics,
+                Orthopedics, or General
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">RESOURCE NEEDS</div>
+            <div class="small">
+                Beds, ICU, OR, doctors, nurses, and ambulances
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("### 2. Priority engine")
+
     st.markdown("""
-### 1. Patient arrival
-Every simulated patient has:
-- arrival time
-- urgency
-- department
-- service duration
-- resource requirements
+    MedFlow supports three explainable scheduling strategies:
 
-### 2. Priority engine
-Three explainable strategies are available:
-- **Urgency only** — baseline triage-style priority.
-- **Urgency + waiting** — waiting time gradually raises priority to reduce starvation.
-- **Urgency + waiting + resource fit** — resource availability is a secondary scheduling signal.
+    **Urgency only**  
+    A baseline urgency-driven priority.
 
-### 3. Resource checker
-A patient is assigned only if **all** requested resources are available simultaneously.
+    **Urgency + waiting**  
+    Waiting time gradually increases priority to reduce starvation.
 
-### 4. Simulation clock
-At every simulated hour:
-1. completed patients release resources
-2. new patients enter the queue
-3. waiting patients are ranked
-4. feasible patients are allocated
-5. utilization and queue metrics are updated
+    **Urgency + waiting + resource fit**  
+    Available resources are added as a secondary scheduling signal.
+    """)
 
-### 5. Stress scenarios
-The hospital can be stress-tested using:
-- emergency surges
-- staff shortages
-- operating-room failures
+    st.markdown("### 3. Resource feasibility")
 
-### 6. Safety boundary
-MedFlow is a **hackathon simulation prototype**, not a clinical decision-support system. It should not be used for real patient-care decisions.
-""")
-    st.code("""Patient arrivals
-      ↓
+    st.success(
+        "A patient is allocated only when all required resources are available simultaneously."
+    )
+
+    st.markdown("### 4. Simulation clock")
+
+    step1, step2, step3, step4, step5 = st.columns(5)
+
+    with step1:
+        st.markdown("**01**")
+        st.caption("Release completed resources")
+
+    with step2:
+        st.markdown("**02**")
+        st.caption("Add new arrivals")
+
+    with step3:
+        st.markdown("**03**")
+        st.caption("Rank waiting patients")
+
+    with step4:
+        st.markdown("**04**")
+        st.caption("Allocate feasible patients")
+
+    with step5:
+        st.markdown("**05**")
+        st.caption("Update metrics")
+
+    st.markdown("### 5. Stress testing")
+
+    s1, s2, s3 = st.columns(3)
+
+    with s1:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">🚑 EMERGENCY SURGE</div>
+            <div class="small">
+                Tests the system under a sudden increase in high-acuity demand.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with s2:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">👩‍⚕️ STAFF SHORTAGE</div>
+            <div class="small">
+                Tests reduced doctor and nurse capacity.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with s3:
+        st.markdown("""
+        <div class="command-card">
+            <div class="command-title">⚠️ OR FAILURE</div>
+            <div class="small">
+                Tests the effect of unavailable operating-room capacity.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("### 6. Real-world deployment path")
+
+    st.markdown("""
+    MedFlow is designed as a hospital operations decision-support platform.
+    The current prototype demonstrates the prioritization, allocation,
+    forecasting, and stress-testing engine using simulated data.
+
+    A production deployment could connect these workflows to real hospital
+    systems, live capacity data, and validated operational policies.
+    """)
+
+    st.markdown("### System flow")
+
+    st.code(
+        """Patient arrivals
+        ↓
 Priority calculation
-      ↓
+        ↓
 Waiting queue
-      ↓
+        ↓
 Resource feasibility check
-      ↓
+        ↓
 Allocation
-      ↓
+        ↓
 Simulation clock
-      ↓
-Metrics + dashboard""", "text")
+        ↓
+Metrics + dashboard""",
+        language="text"
+    )
 
-st.divider()
-st.caption("MedFlow Pro • Hackathon prototype • Synthetic data only • Not for real clinical decisions")
+    st.caption(
+        "Current prototype uses synthetic data. Production deployment would require "
+        "hospital validation, privacy controls, and appropriate regulatory compliance."
+    )
