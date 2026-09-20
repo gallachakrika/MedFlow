@@ -796,13 +796,48 @@ elif page == "👥 Patient Queue":
 
 # ---------- Allocation Board ----------
 elif page == "🗓️ Allocation Board":
-    st.subheader("Patient → resource allocation")
-    st.caption("Each displayed allocation satisfies all required resource-capacity constraints for the simulated schedule.")
+
+    st.markdown(
+        '<div class="section-title">🗓️ ALLOCATION BOARD</div>',
+        unsafe_allow_html=True
+    )
+
+    st.caption(
+        "Live patient-to-resource assignments with built-in capacity conflict checking."
+    )
 
     if schedule.empty:
         st.warning("No patient could be allocated within this simulation.")
     else:
-        st.dataframe(schedule, use_container_width=True, height=560, hide_index=True)
+        metric1, metric2, metric3 = st.columns(3)
+
+        with metric1:
+            st.metric(
+                "Allocated cases",
+                len(schedule)
+            )
+
+        with metric2:
+            st.metric(
+                "Simulation horizon",
+                f"{horizon} h"
+            )
+
+        with metric3:
+            st.metric(
+                "Resources tracked",
+                len(caps)
+            )
+
+        st.markdown("### Scheduled allocations")
+
+        st.dataframe(
+            schedule,
+            use_container_width=True,
+            height=560,
+            hide_index=True
+        )
+
         st.download_button(
             "⬇️ Download allocation CSV",
             schedule.to_csv(index=False).encode(),
@@ -811,24 +846,41 @@ elif page == "🗓️ Allocation Board":
         )
 
     st.markdown("### Resource conflict check")
+
     if schedule.empty:
         st.success("No allocations — therefore no allocation conflict.")
     else:
         conflicts = []
+
         for t in range(horizon):
-            active = schedule[(schedule["Start"] <= t) & (schedule["End"] > t)]
+            active = schedule[
+                (schedule["Start"] <= t) &
+                (schedule["End"] > t)
+            ]
+
             for r, cap in caps.items():
                 col = {
-                    "beds": "Beds", "icu": "ICU", "or": "OR",
-                    "doctors": "Doctors", "nurses": "Nurses", "ambulances": "Ambulances"
+                    "beds": "Beds",
+                    "icu": "ICU",
+                    "or": "OR",
+                    "doctors": "Doctors",
+                    "nurses": "Nurses",
+                    "ambulances": "Ambulances"
                 }[r]
-                if active[col].sum() > cap:
-                    conflicts.append((t, col, active[col].sum(), cap))
-        if conflicts:
-            st.error(f"{len(conflicts)} capacity violations detected.")
-        else:
-            st.success("✓ Zero resource capacity violations detected.")
 
+                if active[col].sum() > cap:
+                    conflicts.append(
+                        (t, col, active[col].sum(), cap)
+                    )
+
+        if conflicts:
+            st.error(
+                f"{len(conflicts)} capacity violations detected."
+            )
+        else:
+            st.success(
+                "✓ Zero resource capacity violations detected."
+            )
 # ---------- Analytics ----------
 elif page == "📈 Analytics":
     st.subheader("Operations analytics")
