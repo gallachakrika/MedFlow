@@ -554,7 +554,12 @@ pages=["🏠 Command Center","🧠 Adaptive Response","👥 Patient Queue","🗓
 page=st.radio("Navigation",pages,horizontal=True,label_visibility="collapsed")
 
 if page=="🏠 Command Center":
-
+    st.markdown(
+        "### Adaptive hospital operations — prioritize patients, balance resources, and respond to pressure in real time."
+    )
+    st.caption(
+        "MedFlow combines urgency, waiting time, and resource availability to support explainable allocation decisions."
+    )
     # ---------- COMMAND CENTER HEADER ----------
     pressure, state, rp, qp, dp = adaptive_pressure(
         timeline, df, caps, horizon
