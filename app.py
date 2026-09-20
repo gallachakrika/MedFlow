@@ -287,6 +287,33 @@ hr {
 [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] span {
     color: #f5f7fa !important;
 }
+.hero-panel {
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    border: 1px solid #243449;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0d1624, #111d2d);
+}
+
+.hero-kicker {
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #7f9bb8;
+    margin-bottom: 6px;
+}
+
+.hero-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #f5f7fa;
+    margin-bottom: 5px;
+}
+
+.hero-subtitle {
+    font-size: 15px;
+    color: #9fb1c4;
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -554,14 +581,9 @@ pages=["🏠 Command Center","🧠 Adaptive Response","👥 Patient Queue","🗓
 page=st.radio("Navigation",pages,horizontal=True,label_visibility="collapsed")
 
 if page=="🏠 Command Center":
-    st.markdown(
-        "### Adaptive hospital operations — prioritize patients, balance resources, and respond to pressure in real time."
-    )
-    st.caption(
-        "MedFlow combines urgency, waiting time, and resource availability to support explainable allocation decisions."
-    )
-    st.markdown("### How MedFlow decides")
     
+    st.markdown("### How MedFlow decides")
+
     step1, step2, step3 = st.columns(3)
 
     with step1:
@@ -618,9 +640,10 @@ if page=="🏠 Command Center":
     with pressure_col:
         st.markdown(f"""
         <div class="pressure">
-            <div class="pressure-label">Hospital Pressure</div>
+            <div class="pressure-label">LIVE HOSPITAL PRESSURE</div>
             <div class="pressure-value">{pressure:.0f}%</div>
             <div class="pressure-label">{pressure_label}</div>
+            <div class="pressure-label">Overall operational load</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -662,18 +685,18 @@ if page=="🏠 Command Center":
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---------- RESOURCE STATUS ----------
+        # ---------- RESOURCE STATUS ----------
     st.markdown(
         '<div class="section-title">LIVE RESOURCE STATUS</div>',
         unsafe_allow_html=True
     )
 
     resources = [
-        ("ICU", "icu"),
-        ("BEDS", "beds"),
-        ("DOCTORS", "doctors"),
-        ("NURSES", "nurses"),
-        ("OPERATING ROOMS", "or"),
+        ("🛏️ BEDS", "beds"),
+        ("🫀 ICU", "icu"),
+        ("👨‍⚕️ DOCTORS", "doctors"),
+        ("👩‍⚕️ NURSES", "nurses"),
+        ("🏥 OPERATING ROOMS", "or"),
     ]
 
     resource_cols = st.columns(5)
@@ -684,26 +707,27 @@ if page=="🏠 Command Center":
         utilization = max(0, min(100, utilization))
 
         if utilization >= 85:
-            status = "CRITICAL"
+            status = "CRITICAL LOAD"
         elif utilization >= 65:
-            status = "HIGH"
+            status = "HIGH LOAD"
         elif utilization >= 40:
-            status = "MODERATE"
+            status = "MODERATE LOAD"
         else:
-            status = "LOW"
+            status = "LOW LOAD"
 
         with col:
             st.markdown(f"""
             <div class="command-card">
                 <div class="command-title">{label}</div>
                 <div class="command-value">{utilization:.0f}%</div>
-                <div class="small">{status} UTILIZATION</div>
+                <div class="small">{status}</div>
             </div>
             """, unsafe_allow_html=True)
 
     # ---------- NOW / NEXT / RISK ----------
+       
     st.markdown(
-        '<div class="section-title">NOW → NEXT → RISK</div>',
+        '<div class="section-title">OPERATIONS SNAPSHOT</div>',
         unsafe_allow_html=True
     )
 
@@ -714,18 +738,18 @@ if page=="🏠 Command Center":
 
         st.markdown(f"""
         <div class="command-card">
-            <div class="command-title">NOW</div>
+            <div class="command-title">🟢 NOW</div>
             <div class="command-value">{waiting_now}</div>
-            <div class="small">PATIENTS WAITING</div>
+            <div class="small">PATIENTS CURRENTLY WAITING</div>
         </div>
         """, unsafe_allow_html=True)
 
     with next_col:
         st.markdown(f"""
         <div class="command-card">
-            <div class="command-title">NEXT</div>
+            <div class="command-title">🔮 NEXT 6H</div>
             <div class="command-value">{expected}</div>
-            <div class="small">EXPECTED ARRIVALS / 6H</div>
+            <div class="small">EXPECTED ARRIVALS</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -741,7 +765,7 @@ if page=="🏠 Command Center":
 
         st.markdown(f"""
         <div class="command-card">
-            <div class="command-title">RISK</div>
+            <div class="command-title">⚠️ RISK</div>
             <div class="command-value">{risk_text}</div>
             <div class="small">CURRENT OPERATING RISK</div>
         </div>
@@ -792,49 +816,48 @@ if page=="🏠 Command Center":
         </div>
         """, unsafe_allow_html=True)
 
-    # ---------- WHY THIS PATIENT ----------
-    # ---------- WHY THIS PATIENT ----------
-st.markdown(
-    '<div class="section-title">🧠 WHY THIS PATIENT?</div>',
-    unsafe_allow_html=True
-)
-
-explain_col, patient_col = st.columns([1.5, 1])
-
-with patient_col:
-    selected = st.selectbox(
-        "Select patient",
-        df["Patient"].tolist()
+       # ---------- WHY THIS PATIENT ----------
+    st.markdown(
+        '<div class="section-title">🧠 WHY THIS PATIENT?</div>',
+        unsafe_allow_html=True
     )
 
-with explain_col:
-    selected_patient = df[
-        df["Patient"] == selected
-    ].iloc[0]
+    explain_col, patient_col = st.columns([1.6, 1])
 
-    score, wait, reason, blockers = decision_explanation(
-        selected_patient,
-        horizon,
-        caps
-    )
-
-    st.markdown("### 🧠 Decision Explanation")
-
-    st.write(f"**Patient:** {selected}")
-    st.write(f"**Priority score:** {score:.0f}")
-    st.write(f"**Urgency:** {selected_patient['Urgency']}")
-    st.write(f"**Waiting time:** {wait} hours")
-    st.write(f"**Department:** {selected_patient['Department']}")
-    st.write(f"**Reason:** {reason}")
-
-    if blockers:
-        st.warning(
-            "Resource constraint: " + ", ".join(blockers)
+    with patient_col:
+        selected = st.selectbox(
+            "Select patient",
+            df["Patient"].tolist()
         )
-    else:
-        st.success(
-            "✓ Required resources currently fit the configured capacity."
+
+    with explain_col:
+        selected_patient = df[
+            df["Patient"] == selected
+        ].iloc[0]
+
+        score, wait, reason, blockers = decision_explanation(
+            selected_patient,
+            horizon,
+            caps
         )
+
+        st.markdown("### Decision Explanation")
+
+        st.write(f"**Patient:** {selected}")
+        st.write(f"**Priority score:** {score:.0f}")
+        st.write(f"**Urgency:** {selected_patient['Urgency']}")
+        st.write(f"**Waiting time:** {wait} hours")
+        st.write(f"**Department:** {selected_patient['Department']}")
+        st.write(f"**Why now:** {reason}")
+
+        if blockers:
+            st.warning(
+                "Resource constraint: " + ", ".join(blockers)
+            )
+        else:
+            st.success(
+                "✓ Required resources currently fit the configured capacity."
+            )
 
     # ---------- RESOURCE TREND ----------
     st.markdown(
