@@ -560,6 +560,22 @@ if page=="🏠 Command Center":
     st.caption(
         "MedFlow combines urgency, waiting time, and resource availability to support explainable allocation decisions."
     )
+    st.markdown("### How MedFlow decides")
+    
+    step1, step2, step3 = st.columns(3)
+
+    with step1:
+        st.markdown("**1. Prioritize**")
+        st.write("Urgency and waiting time determine which patients need attention first.")
+
+    with step2:
+        st.markdown("**2. Check capacity**")
+        st.write("Beds, ICU, ORs, doctors, nurses and ambulances are checked before allocation.")
+
+    with step3:
+        st.markdown("**3. Adapt**")
+        st.write("When pressure changes, MedFlow adjusts its operational response and highlights risk.")
+
     # ---------- COMMAND CENTER HEADER ----------
     pressure, state, rp, qp, dp = adaptive_pressure(
         timeline, df, caps, horizon
