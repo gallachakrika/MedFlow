@@ -978,18 +978,37 @@ elif page == "📈 Analytics":
         use_container_width=True,
         hide_index=True
     )
-    
+
 # ---------- Strategy Lab ----------
 elif page == "🧪 Strategy Lab":
-    st.subheader("Scheduling Strategy Comparison")
+    st.markdown(
+        '<div class="section-title">🧪 STRATEGY LAB</div>',
+        unsafe_allow_html=True
+    )
+
+    st.caption(
+        "Compare scheduling strategies under the same simulated hospital conditions."
+    )
+
     strategies = [
         "Urgency only",
         "Urgency + waiting",
         "Urgency + waiting + resource fit",
     ]
+
     rows = []
+
     for s in strategies:
-        _, _, m, _ = simulate(df, caps, s, horizon, surge, shortage, failure)
+        _, _, m, _ = simulate(
+            df,
+            caps,
+            s,
+            horizon,
+            surge,
+            shortage,
+            failure
+        )
+
         rows.append({
             "Strategy": s,
             "Completed": m["Completed"],
@@ -1000,9 +1019,31 @@ elif page == "🧪 Strategy Lab":
             "ICU utilization": m["icu"],
             "OR utilization": m["or"],
         })
+
     comp = pd.DataFrame(rows)
 
-    st.markdown("### 📊 Strategy Performance")
+    k1, k2, k3 = st.columns(3)
+
+    with k1:
+        st.metric(
+            "Strategies tested",
+            len(comp)
+        )
+
+    with k2:
+        st.metric(
+            "Completion range",
+            f'{comp["Completion rate"].min():.1%} – {comp["Completion rate"].max():.1%}'
+        )
+
+    with k3:
+        st.metric(
+            "Average wait range",
+            f'{comp["Avg wait (h)"].min():.1f} – {comp["Avg wait (h)"].max():.1f} h'
+        )
+
+    st.markdown("### 📊 Strategy performance")
+
     st.dataframe(
         comp.style.format({
             "Completion rate": "{:.1%}",
@@ -1016,21 +1057,48 @@ elif page == "🧪 Strategy Lab":
         hide_index=True,
     )
 
-    st.markdown("### 🏥 Patients Completed by Strategy")
-    st.bar_chart(comp.set_index("Strategy")[["Completed"]], use_container_width=True)
+    st.markdown("### 🏥 Patients completed")
 
-    st.markdown("### ⏱️ Waiting Time Comparison")
-    wait_chart = comp.set_index("Strategy")[["Avg wait (h)", "Max wait (h)"]]
+    st.bar_chart(
+        comp.set_index("Strategy")[["Completed"]],
+        use_container_width=True
+    )
+
+    st.markdown("### ⏱️ Waiting time comparison")
+
+    wait_chart = comp.set_index("Strategy")[[
+        "Avg wait (h)",
+        "Max wait (h)"
+    ]]
+
     if comp["Avg wait (h)"].max() > 0 or comp["Max wait (h)"].max() > 0:
-        st.bar_chart(wait_chart, use_container_width=True)
+        st.bar_chart(
+            wait_chart,
+            use_container_width=True
+        )
     else:
-        st.info("All patients were completed without waiting in this scenario.")
+        st.info(
+            "All patients were completed without waiting in this scenario."
+        )
 
-    st.markdown("### ⚙️ Resource Utilisation Comparison")
-    resource_chart = comp.set_index("Strategy")[["Beds utilization", "ICU utilization", "OR utilization"]]
-    st.bar_chart(resource_chart, use_container_width=True)
-    st.caption("This comparison is descriptive: each strategy is evaluated under the same simulated hospital scenario.")
+    st.markdown("### ⚙️ Resource utilisation")
 
+    resource_chart = comp.set_index("Strategy")[[
+        "Beds utilization",
+        "ICU utilization",
+        "OR utilization"
+    ]]
+
+    st.bar_chart(
+        resource_chart,
+        use_container_width=True
+    )
+
+    st.caption(
+        "Each strategy is evaluated under the same simulated scenario; "
+        "results are descriptive and based on synthetic data."
+    )
+    
 # ---------- Stress Test ----------
 elif page == "🚨 Stress Test":
     st.subheader("Hospital stress-test simulator")
