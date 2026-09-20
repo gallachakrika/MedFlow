@@ -1098,27 +1098,106 @@ elif page == "🧪 Strategy Lab":
         "Each strategy is evaluated under the same simulated scenario; "
         "results are descriptive and based on synthetic data."
     )
-    
+
 # ---------- Stress Test ----------
 elif page == "🚨 Stress Test":
-    st.subheader("Hospital stress-test simulator")
-    st.markdown("Use the sidebar checkboxes to simulate operational shocks.")
-    cards = []
-    if surge:
-        cards.append(("🚑 Emergency surge", "Large burst of critical/high-priority arrivals"))
-    if shortage:
-        cards.append(("👩‍⚕️ Staff shortage", "Doctor/nurse capacity is reduced for hours 18–30"))
-    if failure:
-        cards.append(("⚠️ OR failure", "Operating-room capacity is unavailable for hours 12–14"))
-    if not cards:
-        st.success("No stress scenario active. Turn one on from the sidebar.")
-    for title, desc in cards:
-        st.markdown(f"**{title}** — {desc}")
-    st.markdown("### Queue response")
-    st.line_chart(timeline.set_index("Hour")[["Waiting"]])
-    st.markdown("### Remaining resources")
-    st.line_chart(timeline.set_index("Hour")[["Available beds", "Available ICU", "Available OR", "Available doctors", "Available nurses"]])
 
+    st.markdown(
+        '<div class="section-title">🚨 HOSPITAL STRESS TEST</div>',
+        unsafe_allow_html=True
+    )
+
+    st.caption(
+        "Simulate operational shocks and observe how queue pressure and resource availability respond."
+    )
+
+    cards = []
+
+    if surge:
+        cards.append(
+            ("🚑 Emergency surge", "Burst of critical/high-priority arrivals")
+        )
+
+    if shortage:
+        cards.append(
+            ("👩‍⚕️ Staff shortage", "Doctor and nurse capacity reduced during hours 18–30")
+        )
+
+    if failure:
+        cards.append(
+            ("⚠️ OR failure", "Operating-room capacity unavailable during hours 12–14")
+        )
+
+    if not cards:
+        st.success(
+            "No stress scenario active. Turn one on from the sidebar to begin a stress test."
+        )
+    else:
+        st.markdown("### Active stress scenarios")
+
+        scenario_cols = st.columns(len(cards))
+
+        for col, (title, desc) in zip(scenario_cols, cards):
+            with col:
+                st.markdown(f"""
+                <div class="command-card">
+                    <div class="command-title">{title}</div>
+                    <div class="small">{desc}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+    peak_queue = int(timeline["Waiting"].max())
+    minimum_icu = int(timeline["Available ICU"].min())
+    minimum_or = int(timeline["Available OR"].min())
+
+    st.markdown("### Stress response snapshot")
+
+    s1, s2, s3 = st.columns(3)
+
+    with s1:
+        st.metric(
+            "Peak waiting queue",
+            peak_queue
+        )
+
+    with s2:
+        st.metric(
+            "Minimum ICU available",
+            minimum_icu
+        )
+
+    with s3:
+        st.metric(
+            "Minimum ORs available",
+            minimum_or
+        )
+
+    st.markdown("### Queue response")
+
+    st.line_chart(
+        timeline.set_index("Hour")[["Waiting"]],
+        use_container_width=True
+    )
+
+    st.markdown("### Remaining resource capacity")
+
+    st.line_chart(
+        timeline.set_index("Hour")[
+            [
+                "Available beds",
+                "Available ICU",
+                "Available OR",
+                "Available doctors",
+                "Available nurses"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.caption(
+        "Stress-test results are based on synthetic simulation data and are intended for operational experimentation, not clinical decision-making."
+    )
+    
 # ---------- How it Works ----------
 elif page == "ℹ️ How It Works":
     st.subheader("How MedFlow works")
