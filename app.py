@@ -883,28 +883,84 @@ elif page == "🗓️ Allocation Board":
             )
 # ---------- Analytics ----------
 elif page == "📈 Analytics":
-    st.subheader("Operations analytics")
-    a, b = st.columns(2)
-    with a:
-        st.markdown("### Waiting vs treatment load")
-        st.line_chart(timeline.set_index("Hour")[["Waiting", "In treatment"]])
-    with b:
-        st.markdown("### Resource utilization")
-        util = pd.DataFrame(
-            {"Utilization": [metrics[r] for r in RESOURCES]},
-            index=[r.title() for r in RESOURCES],
+    st.markdown(
+        '<div class="section-title">📈 OPERATIONS ANALYTICS</div>',
+        unsafe_allow_html=True
+    )
+
+    st.caption(
+        "Live performance, resource utilization, demand patterns, and operational outcomes."
+    )
+
+    k1, k2, k3, k4 = st.columns(4)
+
+    with k1:
+        st.metric(
+            "Completion rate",
+            f'{metrics["Completion rate"]:.1%}'
         )
-        st.bar_chart(util)
+
+    with k2:
+        st.metric(
+            "Average wait",
+            f'{metrics["Average wait"]:.2f} h'
+        )
+
+    with k3:
+        st.metric(
+            "Peak queue",
+            metrics["Max queue"]
+        )
+
+    with k4:
+        st.metric(
+            "Completed",
+            metrics["Completed"]
+        )
+
+    st.markdown("### Waiting vs treatment load")
+
+    st.line_chart(
+        timeline.set_index("Hour")[["Waiting", "In treatment"]],
+        use_container_width=True
+    )
+
+    st.markdown("### Resource utilization")
+
+    util = pd.DataFrame(
+        {"Utilization": [metrics[r] for r in RESOURCES]},
+        index=[r.title() for r in RESOURCES]
+    )
+
+    st.bar_chart(
+        util,
+        use_container_width=True
+    )
 
     st.markdown("### Department demand")
-    dept = df.groupby(["Department", "Urgency"]).size().unstack(fill_value=0)
-    st.bar_chart(dept)
+
+    dept = (
+        df.groupby(["Department", "Urgency"])
+        .size()
+        .unstack(fill_value=0)
+    )
+
+    st.bar_chart(
+        dept,
+        use_container_width=True
+    )
 
     st.markdown("### Key performance indicators")
+
     perf = pd.DataFrame({
         "Metric": [
-            "Completion rate", "Average waiting time", "Maximum waiting time", "Peak queue",
-            "Beds utilization", "ICU utilization", "OR utilization"
+            "Completion rate",
+            "Average waiting time",
+            "Maximum waiting time",
+            "Peak queue",
+            "Beds utilization",
+            "ICU utilization",
+            "OR utilization",
         ],
         "Value": [
             f'{metrics["Completion rate"]:.1%}',
@@ -916,8 +972,13 @@ elif page == "📈 Analytics":
             f'{metrics["or"]:.1%}',
         ],
     })
-    st.dataframe(perf, use_container_width=True, hide_index=True)
 
+    st.dataframe(
+        perf,
+        use_container_width=True,
+        hide_index=True
+    )
+    
 # ---------- Strategy Lab ----------
 elif page == "🧪 Strategy Lab":
     st.subheader("Scheduling Strategy Comparison")
